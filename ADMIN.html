@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel - Add Coins</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      --bg-color: #121212;
+      --card-color: #1e1e1e;
+      --primary-color: #00e676;
+      --text-color: #ffffff;
+      --error-color: #ff1744;
+      --transition: 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .admin-card {
+      background: var(--card-color);
+      padding: 30px 25px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0, 255, 128, 0.1);
+      width: 100%;
+      max-width: 420px;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.95);}
+      to {opacity: 1; transform: scale(1);}
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: var(--primary-color);
+      font-size: 1.8rem;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    input {
+      background: #2c2c2c;
+      color: var(--text-color);
+    }
+
+    input:focus {
+      outline: 2px solid var(--primary-color);
+    }
+
+    button {
+      background: var(--primary-color);
+      color: var(--bg-color);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #00c853;
+    }
+
+    .status {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .success {
+      color: var(--primary-color);
+    }
+
+    .error {
+      color: var(--error-color);
+    }
+
+    @media (max-width: 480px) {
+      .admin-card {
+        padding: 20px 15px;
+      }
+      h2 {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-card">
+    <h2>Admin Control Panel</h2>
+    <input type="text" id="userId" placeholder="User ID (e.g. 123456)" />
+    <input type="number" id="coinAmount" placeholder="Coins to Add" />
+    <button onclick="addCoins()">Add Coins</button>
+    <div class="status" id="statusMessage"></div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTjq5sknDg2SSmdN2fbtnirj9jAA6wxyo",
+      authDomain: "shurs-7d0bd.firebaseapp.com",
+      databaseURL: "https://shurs-7d0bd-default-rtdb.firebaseio.com",
+      projectId: "shurs-7d0bd",
+      storageBucket: "shurs-7d0bd.firebasestorage.app",
+      messagingSenderId: "789512168670",
+      appId: "1:789512168670:android:cc1c52edf1031464768e4f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    async function addCoins() {
+      const userId = document.getElementById("userId").value.trim();
+      const coinAmount = parseInt(document.getElementById("coinAmount").value);
+      const statusEl = document.getElementById("statusMessage");
+
+      if (!userId || isNaN(coinAmount)) {
+        statusEl.textContent = "Enter a valid User ID and coin amount.";
+        statusEl.className = "status error";
+        return;
+      }
+
+      try {
+        const userRef = db.ref("users/" + userId + "/coins");
+        const snapshot = await userRef.get();
+        let currentCoins = snapshot.exists() ? snapshot.val() : 0;
+        const newBalance = currentCoins + coinAmount;
+        await userRef.set(newBalance);
+        statusEl.textContent = `Added successfully. New balance: ${newBalance} coins.`;
+        statusEl.className = "status success";
+      } catch (error) {
+        statusEl.textContent = "Error: " + error.message;
+        statusEl.className = "status error";
+      }
+    }
+  </script>
+</body>
+</html>
