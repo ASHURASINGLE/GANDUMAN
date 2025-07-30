@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIG or SMALL Predictor</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(to right, #e0e7ff, #c7d2fe);
+            font-family: 'Inter', sans-serif;
+        }
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: #93c5fd;
+            border-radius: 4px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: #e0e7ff;
+        }
+        .big { color: #16a34a; font-weight: bold; }
+        .small { color: #1e40af; font-weight: bold; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-2xl">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">BIG or SMALL Predictor</h1>
+        
+        <!-- Input Form -->
+        <div class="mb-6">
+            <label for="period" class="block text-lg font-medium text-gray-700 mb-2">Enter 3-Digit Period Number</label>
+            <input type="number" id="period" placeholder="e.g., 355" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" min="100" max="999">
+            <button onclick="generatePredictions()" class="mt-4 w-full bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 transition duration-300">Get Predictions</button>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error" class="text-red-500 text-center mb-4 hidden"></div>
+
+        <!-- Results Table -->
+        <div id="results" class="table-container hidden">
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-indigo-600 text-white">
+                        <th class="p-3 text-left">Period</th>
+                        <th class="p-3 text-left">Number</th>
+                        <th class="p-3 text-left">Prediction</th>
+                    </tr>
+                </thead>
+                <tbody id="predictionTable" class="text-gray-700"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function generatePredictions() {
+            const periodInput = document.getElementById('period').value;
+            const errorDiv = document.getElementById('error');
+            const resultsDiv = document.getElementById('results');
+            const predictionTable = document.getElementById('predictionTable');
+
+            // Reset previous state
+            errorDiv.classList.add('hidden');
+            resultsDiv.classList.add('hidden');
+            predictionTable.innerHTML = '';
+
+            // Validate input
+            if (!periodInput || isNaN(periodInput) || periodInput < 100 || periodInput > 999) {
+                errorDiv.textContent = 'Please enter a valid 3-digit number (100-999).';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            // Generate predictions for 60 periods
+            const startPeriod = parseInt(periodInput);
+            for (let i = 0; i < 60; i++) {
+                const period = startPeriod + i;
+                const number = Math.floor(Math.random() * 10); // Random number 0-9
+                const prediction = number >= 5 ? 'BIG' : 'SMALL';
+
+                const row = document.createElement('tr');
+                row.classList.add('border-b', 'hover:bg-gray-100');
+                row.innerHTML = `
+                    <td class="p-3">${period}</td>
+                    <td class="p-3">${number}</td>
+                    <td class="p-3 ${prediction === 'BIG' ? 'big' : 'small'}">${prediction}</td>
+                `;
+                predictionTable.appendChild(row);
+            }
+
+            // Show results
+            resultsDiv.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
